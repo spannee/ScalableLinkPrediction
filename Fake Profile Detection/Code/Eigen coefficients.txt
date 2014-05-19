@@ -1,0 +1,27 @@
+fileFolder = 'C:/Users/schumi/Downloads/training/Training'; % Change this
+filePattern = fullfile(fileFolder, '*.pgm');
+dirOutput = dir(filePattern);
+faces = {dirOutput.name};
+sum = reshape(double(imread(char(faces(1)))), 2500, 1);
+for n = 2:numel(faces)
+  sum = sum + reshape(double(imread(char(faces(n)))), 2500, 1);
+  n = n + 1;
+end;
+avg = sum / 100;
+meanFaces = cell(1, 100);
+for n = 1:numel(faces)
+  meanFaces{n} = reshape(double(imread(char(faces(n)))), 2500, 1) - avg;
+  n = n + 1;
+end;
+A = horzcat(meanFaces{:});
+cov = A * transpose(A);
+L = transpose(A) * A;
+[V, D] = eig(L);
+U = A * V;
+U = U(:, end:-1:1);
+required = U(:,[1:10]);
+omega = cell(1, 100);
+for n = 1:numel(meanFaces) 
+  omega{n} = transpose(required) *  meanFaces{n};
+  n = n + 1;
+end;

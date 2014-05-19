@@ -1,0 +1,239 @@
+fileFolder = 'C:/Users/schumi/Downloads/training/Training'; % Change this
+filePattern = fullfile(fileFolder, '*.pgm');
+dirOutput = dir(filePattern);
+faces = {dirOutput.name};
+sum = reshape(double(imread(char(faces(1)))), 2500, 1);
+for n = 2:numel(faces)
+  sum = sum + reshape(double(imread(char(faces(n)))), 2500, 1);
+  n = n + 1;
+end;
+avg = sum / 100;
+meanFaces = cell(1, 100);
+for n = 1:numel(faces)
+  meanFaces{n} = reshape(double(imread(char(faces(n)))), 2500, 1) - avg;
+  n = n + 1;
+end;
+A = horzcat(meanFaces{:});
+cov = A * transpose(A);
+L = transpose(A) * A;
+[V, D] = eig(L);
+U = A * V;
+U = U(:, end:-1:1);
+required = U(:,[1:10]);
+omega = cell(1, 100);
+for n = 1:numel(meanFaces) 
+  omega{n} = transpose(required) *  meanFaces{n};
+  n = n + 1;
+end;
+
+probeFileFolder = 'C:/Users/schumi/Downloads/Unidentifed_Profiles'; % Change this
+probeFilePattern = fullfile(probeFileFolder, '*.pgm');
+probeDirOutput = dir(probeFilePattern);
+probeFaces = {probeDirOutput.name};
+probeMeanFaces = cell(1, 100);
+for n = 1:numel(probeFaces)
+  probeMeanFaces{n} = reshape(double(imread(char(probeFaces(n)))), 2500, 1) - avg;
+  n = n + 1;
+end;
+
+galleryFileFolder = 'C:/Users/schumi/Downloads/Authenticated_Profiles'; % Change this
+galleryFilePattern = fullfile(galleryFileFolder, '*.pgm');
+galleryDirOutput = dir(galleryFilePattern);
+galleryFaces = {galleryDirOutput.name};
+galleryMeanFaces = cell(1, 100);
+for n = 1:numel(galleryFaces)
+  galleryMeanFaces{n} = reshape(double(imread(char(galleryFaces(n)))), 2500, 1) - avg;
+  n = n + 1;
+end;
+
+for n = 1:numel(probeMeanFaces) 
+  probeOmega{n} = transpose(required) *  probeMeanFaces{n};
+  n = n + 1;
+end;
+for n = 1:numel(galleryMeanFaces) 
+  galleryOmega{n} = transpose(required) *  galleryMeanFaces{n};
+  n = n + 1;
+end;
+
+for n = 1:numel(probeOmega)
+  probeOmega{n} = reshape(probeOmega{n}, 1, 10);
+  n = n + 1;
+end;
+for n = 1:numel(galleryOmega)
+  galleryOmega{n} = reshape(galleryOmega{n}, 1, 10);
+  n = n + 1;
+end;
+for i = 1:numel(probeOmega)
+  for j = 1:numel(galleryOmega)
+    probeAndGallery = vertcat(probeOmega{i}, galleryOmega{j});
+	distMeasure = pdist(probeAndGallery);
+    similarityMatrix(i,j) = distMeasure;
+  end;
+end;
+genuine = diag(similarityMatrix);
+thresholdValues = linspace(min(similarityMatrix(:)), max(similarityMatrix(:)), 300);
+frr = [];
+imposter = similarityMatrix - diag(genuine);
+far = [];
+indexOne = 1;
+indexTwo = 0;
+while(indexOne <= length(thresholdValues)) 
+ noOfGenuine = length(find(genuine > thresholdValues(indexOne)));
+ frr(indexTwo + 1) = (noOfGenuine / numel(genuine)) * 100;
+ noOfImposter = length(find(nonzeros(imposter) < thresholdValues(indexOne)));
+ far(indexTwo + 1) = (noOfImposter / numel(nonzeros(imposter))) * 100;
+ indexTwo = indexTwo + 1;
+ indexOne = indexOne + 1;
+end;
+a = [];
+b = [];
+for i=1:length(far)
+ a(i) = far(i);
+ b(i) = frr(i);
+end;
+loglog(a,b);
+axis([0 100 0 100]);
+xlabel('FAR(%)');
+ylabel('FRR(%)');
+title('DET');
+
+
+PROG4
+fileFolder = 'C:/Users/schumi/Downloads/training/Training'; % Change this
+filePattern = fullfile(fileFolder, '*.pgm');
+dirOutput = dir(filePattern);
+faces = {dirOutput.name};
+sum = reshape(double(imread(char(faces(1)))), 2500, 1);
+for n = 2:numel(faces)
+  sum = sum + reshape(double(imread(char(faces(n)))), 2500, 1);
+  n = n + 1;
+end;
+avg = sum / 100;
+meanFaces = cell(1, 100);
+for n = 1:numel(faces)
+  meanFaces{n} = reshape(double(imread(char(faces(n)))), 2500, 1) - avg;
+  n = n + 1;
+end;
+A = horzcat(meanFaces{:});
+cov = A * transpose(A);
+L = transpose(A) * A;
+[V, D] = eig(L);
+U = A * V;
+U = U(:, end:-1:1);
+required = U(:,[1:10]);
+omega = cell(1, 100);
+for n = 1:numel(meanFaces) 
+  omega{n} = transpose(required) *  meanFaces{n};
+  n = n + 1;
+end;
+
+probeFileFolder = 'C:/Users/schumi/Downloads/probe/Probe'; % Change this
+probeFilePattern = fullfile(probeFileFolder, '*.pgm');
+probeDirOutput = dir(probeFilePattern);
+probeFaces = {probeDirOutput.name};
+probeMeanFaces = cell(1, 100);
+for n = 1:numel(probeFaces)
+  probeMeanFaces{n} = reshape(double(imread(char(probeFaces(n)))), 2500, 1) - avg;
+  n = n + 1;
+end;
+
+galleryFileFolder = 'C:/Users/schumi/Downloads/gallery/Gallery'; % Change this
+galleryFilePattern = fullfile(galleryFileFolder, '*.pgm');
+galleryDirOutput = dir(galleryFilePattern);
+galleryFaces = {galleryDirOutput.name};
+galleryMeanFaces = cell(1, 100);
+for n = 1:numel(galleryFaces)
+  galleryMeanFaces{n} = reshape(double(imread(char(galleryFaces(n)))), 2500, 1) - avg;
+  n = n + 1;
+end;
+
+for n = 1:numel(probeMeanFaces) 
+  probeOmega{n} = transpose(required) *  probeMeanFaces{n};
+  n = n + 1;
+end;
+for n = 1:numel(galleryMeanFaces) 
+  galleryOmega{n} = transpose(required) *  galleryMeanFaces{n};
+  n = n + 1;
+end;
+
+for n = 1:numel(probeOmega)
+  probeOmega{n} = reshape(probeOmega{n}, 1, 10);
+  n = n + 1;
+end;
+for n = 1:numel(galleryOmega)
+  galleryOmega{n} = reshape(galleryOmega{n}, 1, 10);
+  n = n + 1;
+end;
+for i = 1:numel(probeOmega)
+  for j = 1:numel(galleryOmega)
+    probeAndGallery = vertcat(probeOmega{i}, galleryOmega{j});
+	distMeasure = pdist(probeAndGallery);
+    similarityMatrix(i,j) = distMeasure;
+  end;
+end;
+genuine = diag(similarityMatrix);
+rowVec = [];
+ranks = [];
+indexOne = 0;
+indexTwo = 0;
+element = 1;
+while(element <= 100)
+  genuineElement = genuine(element);
+  for(gallery = similarityMatrix(element:element, 1:100))
+    rowVec(indexOne+1) = gallery;
+    indexOne = indexOne + 1;
+  end;
+  sortedRow = sort(rowVec);
+  rank = max(find(genuineElement == sortedRow));
+  ranks(indexTwo+1) = rank;
+  element = element + 1;
+  indexOne = 0;
+  indexTwo = indexTwo + 1;
+end;
+rankOne = find(ranks == 1);
+ranksNotOne = find(ranks ~= 1);
+indexThree = 1;
+rankarray = [];
+rankarray(100) = 0;
+while(indexThree <= length(ranksNotOne))
+  ranksNotOneElement = ranksNotOne(:,indexThree);
+  totalRanks = ranks(ranksNotOneElement);
+  if ~isempty(rankarray)
+    y = totalRanks;
+    while(y <= 100)
+      rankarray(y) = rankarray(y) + 1;
+      y = y + 1;
+    end;
+  elseif isempty(rankarray)
+    z = totalRanks;
+    while(z <= 100)
+      rankarray(z) = 1;
+      z = z + 1;
+    end;
+  end;
+  indexThree = indexThree + 1;
+end;
+rankarray(1) = length(rankOne);
+x = 2;
+while(x <= 100)
+  rankarray(x) = rankarray(x) + rankarray(1);
+  x = x + 1;
+end;
+a = [];
+b = [];
+for i=1:length(rankarray)
+  a(i)= i;
+  b(i) = (rankarray(i) / 100) * 100;
+  i = i + 1;
+end;
+plot(a,b);
+axis([1 100 40 100])
+xlabel('Rank(t)');
+ylabel('Rank-t identification rate(%)');
+title('CMC curve');	
+
+
+
+
+
+

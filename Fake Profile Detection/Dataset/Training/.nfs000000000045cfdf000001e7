@@ -1,0 +1,10 @@
+prevname=''
+fline=''
+count=1
+for filename in *  #loop through all the files
+ do
+ subj="subject_$count_image_1"
+ echo "$subj"
+ mv $filename $subj
+ count=$count+1
+done
